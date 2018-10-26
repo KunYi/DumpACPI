@@ -230,7 +230,28 @@ enum { AT_PROCERROS_LAPIC = 0, AT_IOAPIC, AT_INTSRCO,
 
 bool LoadSysInfo(HMODULE &hSysInfoLib, ISysInfo* pISysInfo)
 {
+/*
+ *  code snippet from
+ *  https://stackoverflow.com/questions/1505582/determining-32-vs-64-bit-in-c
+ *
+ */
+#if defined(ENV64BIT)
+	hSysInfoLib = LoadLibrary(_T("SysInfoX64.dll"));
+#elif defined (ENV32BIT)
 	hSysInfoLib = LoadLibrary(_T("SysInfo.dll"));
+#else
+	// INCREASE ROBUSTNESS. ALWAYS THROW AN ERROR ON THE ELSE.
+	// - What if I made a typo and checked for ENV6BIT instead of ENV64BIT?
+	// - What if both ENV64BIT and ENV32BIT are not defined?
+	// - What if project is corrupted, and _WIN64 and _WIN32 are not defined?
+	// - What if I didn't include the required header file?
+	// - What if I checked for _WIN32 first instead of second?
+	//   (in Windows, both are defined in 64-bit, so this will break codebase)
+	// - What if the code has just been ported to a different OS?
+	// - What if there is an unknown unknown, not mentioned in this list so far?
+	// I'm only human, and the mistakes above would break the *entire* codebase.
+#error "Must define either ENV32BIT or ENV64BIT"
+#endif
 
 	if (NULL != hSysInfoLib)
 	{
