@@ -236,9 +236,9 @@ bool LoadSysInfo(HMODULE &hSysInfoLib, ISysInfo* pISysInfo)
  *
  */
 #if defined(ENV64BIT)
-	hSysInfoLib = LoadLibrary(_T("SysInfoX64.dll"));
+	TCHAR pSharedLibName[] = _T("SysInfoX64.dll");
 #elif defined (ENV32BIT)
-	hSysInfoLib = LoadLibrary(_T("SysInfo.dll"));
+	TCHAR pSharedLibName[] = _T("SysInfo.dll");
 #else
 	// INCREASE ROBUSTNESS. ALWAYS THROW AN ERROR ON THE ELSE.
 	// - What if I made a typo and checked for ENV6BIT instead of ENV64BIT?
@@ -252,6 +252,7 @@ bool LoadSysInfo(HMODULE &hSysInfoLib, ISysInfo* pISysInfo)
 	// I'm only human, and the mistakes above would break the *entire* codebase.
 #error "Must define either ENV32BIT or ENV64BIT"
 #endif
+	hSysInfoLib = LoadLibrary(pSharedLibName);
 
 	if (NULL != hSysInfoLib)
 	{
@@ -270,7 +271,7 @@ bool LoadSysInfo(HMODULE &hSysInfoLib, ISysInfo* pISysInfo)
 	}
 	else 
 	{
-		printf("Can't find Sysinfo.dll\n");
+		printf("Can't find %s\n", pSharedLibName);
 		exit(-1);
 		return false;
 	}
